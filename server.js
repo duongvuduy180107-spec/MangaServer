@@ -2,15 +2,28 @@ const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
+const axios = require('axios');
 
 const app = express();
+
 const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST || '0.0.0.0';
+
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN || '';
+const GITHUB_OWNER = process.env.GITHUB_OWNER || '';
+const GITHUB_REPO = process.env.GITHUB_REPO || '';
+const GITHUB_BRANCH = process.env.GITHUB_BRANCH || 'main';
+const USE_GITHUB = Boolean(GITHUB_TOKEN && GITHUB_OWNER && GITHUB_REPO);
 
 const ROOT_DIR = __dirname;
 const DATA_DIR = path.join(ROOT_DIR, 'data');
 const MANGA_DIR = path.join(DATA_DIR, 'manga');
 const MANGA_LIST_FILE = path.join(DATA_DIR, 'manga.json');
+
+const GH_API_BASE = 'https://api.github.com';
+
+let mangaListCache = [];
+const detailCache = new Map();
 
 function ensureDir(dir) {
   fs.mkdirSync(dir, { recursive: true });
@@ -26,21 +39,31 @@ function safeRm(targetPath) {
   }
 }
 
-function readJson(filePath, fallback) {
+function localReadJson(filePath, fallback) {
   try {
     if (!fs.existsSync(filePath)) return fallback;
     const raw = fs.readFileSync(filePath, 'utf8');
     if (!raw.trim()) return fallback;
     return JSON.parse(raw);
   } catch (err) {
-    console.error(`readJson error: ${filePath}`, err.message);
+    console.error(`localReadJson error: ${filePath}`, err.message);
     return fallback;
   }
 }
 
-function writeJson(filePath, data) {
+function localWriteJson(filePath, data) {
   ensureDir(path.dirname(filePath));
   fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf8');
+}
+
+function localDeletePath(filePath) {
+  try {
+    if (fs.existsSync(filePath)) {
+      fs.rmSync(filePath, { recursive: true, force: true });
+    }
+  } catch (err) {
+    console.error(`localDeletePath error: ${filePath}`, err.message);
+  }
 }
 
 function sanitizeText(value) {
@@ -89,32 +112,8 @@ function nextId(prefix, existingList, keyName) {
   return `${prefix}${String(max + 1).padStart(4, '0')}`;
 }
 
-function ensureBaseFiles() {
-  ensureDir(DATA_DIR);
-  ensureDir(MANGA_DIR);
-  if (!fs.existsSync(MANGA_LIST_FILE)) {
-    writeJson(MANGA_LIST_FILE, []);
-  }
-}
-
-function loadMangaList() {
-  return readJson(MANGA_LIST_FILE, []);
-}
-
-function saveMangaList(list) {
-  writeJson(MANGA_LIST_FILE, list);
-}
-
 function mangaFilePath(slug) {
   return path.join(MANGA_DIR, `${slug}.json`);
-}
-
-function loadMangaDetailBySlug(slug) {
-  return readJson(mangaFilePath(slug), null);
-}
-
-function saveMangaDetail(detail) {
-  writeJson(mangaFilePath(detail.slug), detail);
 }
 
 function isAbsoluteUrl(url) {
@@ -225,19 +224,200 @@ function sortChapters(list) {
     });
 }
 
-function findMangaById(mangaId) {
-  const list = loadMangaList();
-  const manga = list.find(m => m.mangaId === mangaId);
-  if (!manga) return null;
-  const detail = loadMangaDetailBySlug(manga.slug);
-  return { list, manga, detail };
-}
-
 function chapterCountFromDetail(detail) {
   return Array.isArray(detail?.chapters) ? detail.chapters.length : 0;
 }
 
-ensureBaseFiles();
+function ensureBaseFilesLocal() {
+  ensureDir(DATA_DIR);
+  ensureDir(MANGA_DIR);
+  if (!fs.existsSync(MANGA_LIST_FILE)) {
+    localWriteJson(MANGA_LIST_FILE, []);
+  }
+}
+
+function githubRepoPath(filePath) {
+  return String(filePath || '')
+    .split('/')
+    .map(encodeURIComponent)
+    .join('/');
+}
+
+function githubHeaders() {
+  return {
+    Authorization: `Bearer ${GITHUB_TOKEN}`,
+    Accept: 'application/vnd.github+json',
+    'X-GitHub-Api-Version': '2022-11-28',
+    'User-Agent': 'MangaServer',
+  };
+}
+
+function githubFileUrl(filePath) {
+  return `${GH_API_BASE}/repos/${encodeURIComponent(GITHUB_OWNER)}/${encodeURIComponent(GITHUB_REPO)}/contents/${githubRepoPath(filePath)}`;
+}
+
+async function githubGetFileMeta(filePath) {
+  const url = `${githubFileUrl(filePath)}?ref=${encodeURIComponent(GITHUB_BRANCH)}`;
+  const res = await axios.get(url, {
+    headers: githubHeaders(),
+    validateStatus: () => true,
+  });
+
+  if (res.status === 404) return null;
+  if (res.status < 200 || res.status >= 300) {
+    throw new Error(`GitHub GET failed for ${filePath}: ${res.status} ${JSON.stringify(res.data)}`);
+  }
+  return res.data;
+}
+
+async function githubReadJson(filePath, fallback) {
+  try {
+    const meta = await githubGetFileMeta(filePath);
+    if (!meta || !meta.content) return fallback;
+
+    const text = Buffer.from(String(meta.content).replace(/\n/g, ''), 'base64').toString('utf8');
+    if (!text.trim()) return fallback;
+    return JSON.parse(text);
+  } catch (err) {
+    console.error(`githubReadJson error: ${filePath}`, err.message);
+    return fallback;
+  }
+}
+
+async function githubWriteJson(filePath, data, message) {
+  try {
+    const existing = await githubGetFileMeta(filePath);
+    const body = {
+      message: message || `update ${filePath}`,
+      content: Buffer.from(JSON.stringify(data, null, 2), 'utf8').toString('base64'),
+      branch: GITHUB_BRANCH,
+    };
+
+    if (existing?.sha) body.sha = existing.sha;
+
+    const res = await axios.put(githubFileUrl(filePath), body, {
+      headers: githubHeaders(),
+      validateStatus: () => true,
+    });
+
+    if (res.status < 200 || res.status >= 300) {
+      throw new Error(`GitHub PUT failed for ${filePath}: ${res.status} ${JSON.stringify(res.data)}`);
+    }
+
+    return res.data;
+  } catch (err) {
+    console.error(`githubWriteJson error: ${filePath}`, err.message);
+    throw err;
+  }
+}
+
+async function githubDeleteFile(filePath, message) {
+  try {
+    const existing = await githubGetFileMeta(filePath);
+    if (!existing?.sha) return null;
+
+    const body = {
+      message: message || `delete ${filePath}`,
+      sha: existing.sha,
+      branch: GITHUB_BRANCH,
+    };
+
+    const res = await axios.delete(githubFileUrl(filePath), {
+      headers: githubHeaders(),
+      data: body,
+      validateStatus: () => true,
+    });
+
+    if (res.status < 200 || res.status >= 300) {
+      throw new Error(`GitHub DELETE failed for ${filePath}: ${res.status} ${JSON.stringify(res.data)}`);
+    }
+
+    return res.data;
+  } catch (err) {
+    console.error(`githubDeleteFile error: ${filePath}`, err.message);
+    throw err;
+  }
+}
+
+async function storeReadJson(filePath, fallback) {
+  if (USE_GITHUB) return githubReadJson(filePath, fallback);
+  return localReadJson(filePath, fallback);
+}
+
+async function storeWriteJson(filePath, data, message) {
+  if (USE_GITHUB) return githubWriteJson(filePath, data, message);
+  localWriteJson(filePath, data);
+  return { ok: true };
+}
+
+async function storeDelete(filePath, message) {
+  if (USE_GITHUB) return githubDeleteFile(filePath, message);
+  localDeletePath(filePath);
+  return { ok: true };
+}
+
+async function bootstrap() {
+  if (!USE_GITHUB) {
+    ensureBaseFilesLocal();
+  }
+
+  mangaListCache = await storeReadJson(MANGA_LIST_FILE, []);
+  if (!Array.isArray(mangaListCache)) mangaListCache = [];
+
+  detailCache.clear();
+  for (const manga of mangaListCache) {
+    if (!manga?.slug) continue;
+    const detail = await storeReadJson(mangaFilePath(manga.slug), null);
+    if (detail) detailCache.set(manga.slug, detail);
+  }
+
+  console.log(`[BOOT] mode=${USE_GITHUB ? 'github' : 'local'} mangas=${mangaListCache.length}`);
+}
+
+function getMangaSummaryById(mangaId) {
+  return mangaListCache.find(m => m.mangaId === mangaId) || null;
+}
+
+async function ensureDetailLoaded(slug) {
+  if (!slug) return null;
+  if (detailCache.has(slug)) return detailCache.get(slug);
+  const detail = await storeReadJson(mangaFilePath(slug), null);
+  if (detail) detailCache.set(slug, detail);
+  return detail;
+}
+
+async function findMangaById(mangaId) {
+  const manga = getMangaSummaryById(mangaId);
+  if (!manga) return null;
+  const detail = await ensureDetailLoaded(manga.slug);
+  return { manga, detail };
+}
+
+async function persistMangaList() {
+  await storeWriteJson(MANGA_LIST_FILE, mangaListCache, 'update manga list');
+}
+
+async function persistMangaDetail(detail) {
+  if (!detail?.slug) return;
+  detailCache.set(detail.slug, detail);
+  await storeWriteJson(mangaFilePath(detail.slug), detail, `update detail ${detail.slug}`);
+}
+
+async function removeMangaDetail(slug) {
+  if (!slug) return;
+  detailCache.delete(slug);
+  await storeDelete(mangaFilePath(slug), `delete detail ${slug}`);
+}
+
+function upsertSummaryFromDetail(detail) {
+  const summary = buildMangaSummary(detail);
+  const idx = mangaListCache.findIndex(m => m.mangaId === detail.mangaId);
+  if (idx === -1) {
+    mangaListCache.push(summary);
+  } else {
+    mangaListCache[idx] = summary;
+  }
+}
 
 app.use(cors());
 app.use(express.json({ limit: '20mb' }));
@@ -248,13 +428,13 @@ app.get('/api/health', (_req, res) => {
     ok: true,
     message: 'server is alive',
     time: new Date().toISOString(),
+    store: USE_GITHUB ? 'github' : 'local',
   });
 });
 
-app.get('/api/genres', (_req, res) => {
-  const mangaList = loadMangaList();
+app.get('/api/genres', async (_req, res) => {
   const genres = [...new Set(
-    mangaList.flatMap(m => Array.isArray(m.genres) ? m.genres : [])
+    mangaListCache.flatMap(m => Array.isArray(m.genres) ? m.genres : [])
   )].sort((a, b) => a.localeCompare(b, 'vi'));
 
   res.json({
@@ -264,8 +444,8 @@ app.get('/api/genres', (_req, res) => {
   });
 });
 
-app.get('/api/manga', (_req, res) => {
-  const mangaList = sortNewestFirst(loadMangaList()).map(toPublicManga);
+app.get('/api/manga', async (_req, res) => {
+  const mangaList = sortNewestFirst(mangaListCache).map(toPublicManga);
   res.json({
     ok: true,
     count: mangaList.length,
@@ -273,56 +453,72 @@ app.get('/api/manga', (_req, res) => {
   });
 });
 
-app.get('/api/manga/:mangaId', (req, res) => {
-  const found = findMangaById(req.params.mangaId);
-
-  if (!found) {
-    return res.status(404).json({
-      ok: false,
-      message: 'manga not found',
-    });
-  }
-
-  if (!found.detail) {
-    return res.status(404).json({
-      ok: false,
-      message: 'manga detail file not found',
-      manga: found.manga,
-    });
-  }
-
-  const detail = toPublicDetail(found.detail);
-  detail.chapters = sortChapters(detail.chapters || []);
-
-  res.json({
-    ok: true,
-    manga: detail,
-  });
-});
-
-app.get('/api/manga/:mangaId/chapters', (req, res) => {
-  const found = findMangaById(req.params.mangaId);
-
-  if (!found) {
-    return res.status(404).json({ ok: false, message: 'manga not found' });
-  }
-
-  if (!found.detail) {
-    return res.status(404).json({ ok: false, message: 'manga detail file not found' });
-  }
-
-  res.json({
-    ok: true,
-    mangaId: found.detail.mangaId,
-    slug: found.detail.slug,
-    chapters: sortChapters(found.detail.chapters || []),
-  });
-});
-
-app.post('/api/manga', (req, res) => {
+app.get('/api/manga/:mangaId', async (req, res) => {
   try {
-    const mangaList = loadMangaList();
+    const found = await findMangaById(req.params.mangaId);
 
+    if (!found) {
+      return res.status(404).json({
+        ok: false,
+        message: 'manga not found',
+      });
+    }
+
+    if (!found.detail) {
+      return res.status(404).json({
+        ok: false,
+        message: 'manga detail file not found',
+        manga: found.manga,
+      });
+    }
+
+    const detail = toPublicDetail(found.detail);
+    detail.chapters = sortChapters(detail.chapters || []);
+
+    res.json({
+      ok: true,
+      manga: detail,
+    });
+  } catch (err) {
+    console.error('GET /api/manga/:mangaId error:', err);
+    res.status(500).json({
+      ok: false,
+      message: 'failed to load manga',
+      error: err.message,
+    });
+  }
+});
+
+app.get('/api/manga/:mangaId/chapters', async (req, res) => {
+  try {
+    const found = await findMangaById(req.params.mangaId);
+
+    if (!found) {
+      return res.status(404).json({ ok: false, message: 'manga not found' });
+    }
+
+    if (!found.detail) {
+      return res.status(404).json({ ok: false, message: 'manga detail file not found' });
+    }
+
+    res.json({
+      ok: true,
+      mangaId: found.detail.mangaId,
+      slug: found.detail.slug,
+      chapters: sortChapters(found.detail.chapters || []),
+    });
+  } catch (err) {
+    console.error('GET /api/manga/:mangaId/chapters error:', err);
+    res.status(500).json({
+      ok: false,
+      message: 'failed to load chapters',
+      error: err.message,
+    });
+  }
+});
+
+app.post('/api/manga', async (req, res) => {
+  try {
     const title = sanitizeText(req.body.title);
     const author = sanitizeText(req.body.author);
     const summary = sanitizeText(req.body.summary);
@@ -335,9 +531,9 @@ app.post('/api/manga', (req, res) => {
       return res.status(400).json({ ok: false, message: 'title is required' });
     }
 
-    const mangaId = nextId('manga_', mangaList, 'mangaId');
+    const mangaId = nextId('manga_', mangaListCache, 'mangaId');
     const baseSlug = slugify(rawSlug || title) || mangaId;
-    const slug = uniqueSlug(baseSlug, mangaList);
+    const slug = uniqueSlug(baseSlug, mangaListCache);
     const now = new Date().toISOString();
 
     const mangaDetail = {
@@ -356,11 +552,11 @@ app.post('/api/manga', (req, res) => {
       updatedAt: now,
     };
 
-    const mangaSummary = buildMangaSummary(mangaDetail);
+    upsertSummaryFromDetail(mangaDetail);
+    detailCache.set(slug, mangaDetail);
 
-    mangaList.push(mangaSummary);
-    saveMangaList(mangaList);
-    saveMangaDetail(mangaDetail);
+    await persistMangaList();
+    await persistMangaDetail(mangaDetail);
 
     res.json({
       ok: true,
@@ -386,83 +582,74 @@ app.post('/api/manga', (req, res) => {
   }
 });
 
-app.put('/api/manga/:mangaId', (req, res) => {
+app.put('/api/manga/:mangaId', async (req, res) => {
   try {
     const mangaId = req.params.mangaId;
-    const mangaList = loadMangaList();
-    const listIndex = mangaList.findIndex(m => m.mangaId === mangaId);
+    const listIndex = mangaListCache.findIndex(m => m.mangaId === mangaId);
 
     if (listIndex === -1) {
       return res.status(404).json({ ok: false, message: 'manga not found' });
     }
 
-    const oldManga = mangaList[listIndex];
-    const detail = loadMangaDetailBySlug(oldManga.slug);
+    const oldManga = mangaListCache[listIndex];
+    const oldDetail = await ensureDetailLoaded(oldManga.slug);
 
-    if (!detail) {
+    if (!oldDetail) {
       return res.status(404).json({ ok: false, message: 'manga detail file not found' });
     }
 
-    const title = req.body.title !== undefined ? sanitizeText(req.body.title) : detail.title;
-    const author = req.body.author !== undefined ? sanitizeText(req.body.author) : detail.author;
-    const summary = req.body.summary !== undefined ? sanitizeText(req.body.summary) : detail.summary;
-    const description = req.body.description !== undefined ? sanitizeText(req.body.description) : detail.description;
+    const title = req.body.title !== undefined ? sanitizeText(req.body.title) : oldDetail.title;
+    const author = req.body.author !== undefined ? sanitizeText(req.body.author) : oldDetail.author;
+    const summary = req.body.summary !== undefined ? sanitizeText(req.body.summary) : oldDetail.summary;
+    const description = req.body.description !== undefined ? sanitizeText(req.body.description) : oldDetail.description;
     const rawSlug = sanitizeText(req.body.slug);
-    const genres = req.body.genres !== undefined ? normalizeGenres(req.body.genres) : detail.genres;
-    const coverUrl = req.body.coverUrl !== undefined ? normalizeUrl(req.body.coverUrl) : detail.coverUrl;
+    const genres = req.body.genres !== undefined ? normalizeGenres(req.body.genres) : oldDetail.genres;
+    const coverUrl = req.body.coverUrl !== undefined ? normalizeUrl(req.body.coverUrl) : oldDetail.coverUrl;
 
     if (!title) {
       return res.status(400).json({ ok: false, message: 'title cannot be empty' });
     }
 
-    let newSlug = detail.slug;
+    let newSlug = oldDetail.slug;
     if (rawSlug || (req.body.title !== undefined && title !== oldManga.title)) {
       const baseSlug = slugify(rawSlug || title) || mangaId;
-      if (baseSlug !== detail.slug) {
-        const otherMangas = mangaList.filter(m => m.mangaId !== mangaId);
+      if (baseSlug !== oldDetail.slug) {
+        const otherMangas = mangaListCache.filter(m => m.mangaId !== mangaId);
         newSlug = uniqueSlug(baseSlug, otherMangas);
       }
     }
 
     const now = new Date().toISOString();
-    const oldSlug = oldManga.slug;
+    const oldSlug = oldDetail.slug;
 
-    detail.title = title;
-    detail.author = author;
-    detail.summary = summary;
-    detail.description = description;
-    detail.genres = genres;
-    detail.coverUrl = coverUrl || null;
-    detail.coverFile = coverUrl ? { originalName: null, mimetype: null, size: null, savedPath: coverUrl } : null;
-    detail.updatedAt = now;
-    detail.slug = newSlug;
-
-    const updatedSummary = {
-      ...oldManga,
-      title: detail.title,
-      author: detail.author,
-      slug: detail.slug,
-      genres: detail.genres,
-      coverUrl: detail.coverUrl,
-      updatedAt: detail.updatedAt,
-      summary: detail.summary,
-      description: detail.description,
-      chapterCount: chapterCountFromDetail(detail),
+    const updatedDetail = {
+      ...oldDetail,
+      title,
+      author,
+      summary,
+      description,
+      genres,
+      coverUrl: coverUrl || null,
+      coverFile: coverUrl ? { originalName: null, mimetype: null, size: null, savedPath: coverUrl } : null,
+      updatedAt: now,
+      slug: newSlug,
     };
 
-    mangaList[listIndex] = updatedSummary;
-    saveMangaList(mangaList);
+    mangaListCache[listIndex] = buildMangaSummary(updatedDetail);
+    detailCache.delete(oldSlug);
+    detailCache.set(newSlug, updatedDetail);
+
+    await persistMangaList();
+    await persistMangaDetail(updatedDetail);
 
     if (newSlug !== oldSlug) {
-      safeRm(mangaFilePath(oldSlug));
+      await removeMangaDetail(oldSlug);
     }
-
-    saveMangaDetail(detail);
 
     res.json({
       ok: true,
       message: 'manga updated successfully',
-      manga: toPublicDetail(detail),
+      manga: toPublicDetail(updatedDetail),
     });
   } catch (err) {
     console.error('PUT /api/manga/:mangaId error:', err);
@@ -474,20 +661,19 @@ app.put('/api/manga/:mangaId', (req, res) => {
   }
 });
 
-app.delete('/api/manga/:mangaId', (req, res) => {
+app.delete('/api/manga/:mangaId', async (req, res) => {
   try {
-    const mangaList = loadMangaList();
-    const idx = mangaList.findIndex(m => m.mangaId === req.params.mangaId);
+    const mangaId = req.params.mangaId;
+    const idx = mangaListCache.findIndex(m => m.mangaId === mangaId);
 
     if (idx === -1) {
       return res.status(404).json({ ok: false, message: 'manga not found' });
     }
 
-    const manga = mangaList[idx];
-    mangaList.splice(idx, 1);
-    saveMangaList(mangaList);
-
-    safeRm(mangaFilePath(manga.slug));
+    const manga = mangaListCache[idx];
+    mangaListCache.splice(idx, 1);
+    await persistMangaList();
+    await removeMangaDetail(manga.slug);
 
     res.json({
       ok: true,
@@ -508,7 +694,7 @@ app.delete('/api/manga/:mangaId', (req, res) => {
   }
 });
 
-app.post('/api/chapter', (req, res) => {
+app.post('/api/chapter', async (req, res) => {
   try {
     const mangaId = sanitizeText(req.body.mangaId);
     const chapterNumber = Number(req.body.chapterNumber);
@@ -528,14 +714,13 @@ app.post('/api/chapter', (req, res) => {
       return res.status(400).json({ ok: false, message: 'pages is required and must not be empty' });
     }
 
-    const mangaList = loadMangaList();
-    const manga = mangaList.find(m => m.mangaId === mangaId);
-
-    if (!manga) {
+    const mangaIndex = mangaListCache.findIndex(m => m.mangaId === mangaId);
+    if (mangaIndex === -1) {
       return res.status(404).json({ ok: false, message: 'manga not found' });
     }
 
-    const detail = loadMangaDetailBySlug(manga.slug) || { ...manga, chapters: [] };
+    const manga = mangaListCache[mangaIndex];
+    const detail = (await ensureDetailLoaded(manga.slug)) || { ...manga, chapters: [] };
     detail.chapters = Array.isArray(detail.chapters) ? detail.chapters : [];
 
     const chapterId = chapterIdInput || nextId('chap_', detail.chapters, 'chapterId');
@@ -566,10 +751,11 @@ app.post('/api/chapter', (req, res) => {
 
     manga.chapterCount = detail.chapterCount;
     manga.updatedAt = now;
-    mangaList[mangaList.findIndex(m => m.mangaId === mangaId)] = manga;
+    mangaListCache[mangaIndex] = buildMangaSummary(detail);
+    detailCache.set(detail.slug, detail);
 
-    saveMangaList(mangaList);
-    saveMangaDetail(detail);
+    await persistMangaList();
+    await persistMangaDetail(detail);
 
     res.json({
       ok: true,
@@ -600,7 +786,7 @@ app.post('/api/chapter', (req, res) => {
   }
 });
 
-app.put('/api/chapter/:chapterId', (req, res) => {
+app.put('/api/chapter/:chapterId', async (req, res) => {
   try {
     const chapterId = req.params.chapterId;
     const mangaId = sanitizeText(req.body.mangaId);
@@ -615,15 +801,14 @@ app.put('/api/chapter/:chapterId', (req, res) => {
       return res.status(400).json({ ok: false, message: 'mangaId is required in body to update chapter' });
     }
 
-    const mangaList = loadMangaList();
-    const mangaListIndex = mangaList.findIndex(m => m.mangaId === mangaId);
-    const manga = mangaList[mangaListIndex];
-
-    if (!manga) {
+    const mangaIndex = mangaListCache.findIndex(m => m.mangaId === mangaId);
+    if (mangaIndex === -1) {
       return res.status(404).json({ ok: false, message: 'manga not found' });
     }
 
-    const detail = loadMangaDetailBySlug(manga.slug);
+    const manga = mangaListCache[mangaIndex];
+    const detail = await ensureDetailLoaded(manga.slug);
+
     if (!detail || !Array.isArray(detail.chapters)) {
       return res.status(404).json({ ok: false, message: 'manga detail or chapters missing' });
     }
@@ -668,10 +853,12 @@ app.put('/api/chapter/:chapterId', (req, res) => {
 
     manga.updatedAt = now;
     manga.chapterCount = chapterCountFromDetail(detail);
-    mangaList[mangaListIndex] = manga;
 
-    saveMangaDetail(detail);
-    saveMangaList(mangaList);
+    mangaListCache[mangaIndex] = buildMangaSummary(detail);
+    detailCache.set(detail.slug, detail);
+
+    await persistMangaList();
+    await persistMangaDetail(detail);
 
     res.json({
       ok: true,
@@ -694,7 +881,7 @@ app.put('/api/chapter/:chapterId', (req, res) => {
   }
 });
 
-app.delete('/api/chapter/:chapterId', (req, res) => {
+app.delete('/api/chapter/:chapterId', async (req, res) => {
   try {
     const chapterId = req.params.chapterId;
     const mangaId = sanitizeText(req.query.mangaId);
@@ -703,7 +890,7 @@ app.delete('/api/chapter/:chapterId', (req, res) => {
     let chapterIndex = -1;
 
     if (mangaId) {
-      const found = findMangaById(mangaId);
+      const found = await findMangaById(mangaId);
       if (!found || !found.detail) {
         return res.status(404).json({ ok: false, message: 'manga not found' });
       }
@@ -711,9 +898,8 @@ app.delete('/api/chapter/:chapterId', (req, res) => {
       detail.chapters = Array.isArray(detail.chapters) ? detail.chapters : [];
       chapterIndex = detail.chapters.findIndex(ch => ch.chapterId === chapterId);
     } else {
-      const mangaList = loadMangaList();
-      for (const manga of mangaList) {
-        const candidate = loadMangaDetailBySlug(manga.slug);
+      for (const manga of mangaListCache) {
+        const candidate = await ensureDetailLoaded(manga.slug);
         if (!candidate || !Array.isArray(candidate.chapters)) continue;
         const idx = candidate.chapters.findIndex(ch => ch.chapterId === chapterId);
         if (idx !== -1) {
@@ -732,15 +918,16 @@ app.delete('/api/chapter/:chapterId', (req, res) => {
     detail.chapters.splice(chapterIndex, 1);
     detail.chapterCount = detail.chapters.length;
     detail.updatedAt = new Date().toISOString();
-    saveMangaDetail(detail);
 
-    const mangaList = loadMangaList();
-    const mangaIdx = mangaList.findIndex(m => m.mangaId === detail.mangaId);
+    const mangaIdx = mangaListCache.findIndex(m => m.mangaId === detail.mangaId);
     if (mangaIdx !== -1) {
-      mangaList[mangaIdx].chapterCount = detail.chapterCount;
-      mangaList[mangaIdx].updatedAt = detail.updatedAt;
-      saveMangaList(mangaList);
+      mangaListCache[mangaIdx] = buildMangaSummary(detail);
     }
+
+    detailCache.set(detail.slug, detail);
+
+    await persistMangaList();
+    await persistMangaDetail(detail);
 
     res.json({
       ok: true,
@@ -761,14 +948,13 @@ app.delete('/api/chapter/:chapterId', (req, res) => {
   }
 });
 
-app.get('/api/chapter/:chapterId', (_req, res) => {
+app.get('/api/chapter/:chapterId', async (req, res) => {
   try {
-    const mangaList = loadMangaList();
-    for (const manga of mangaList) {
-      const detail = loadMangaDetailBySlug(manga.slug);
+    for (const manga of mangaListCache) {
+      const detail = await ensureDetailLoaded(manga.slug);
       if (!detail || !Array.isArray(detail.chapters)) continue;
 
-      const chapter = detail.chapters.find(ch => ch.chapterId === _req.params.chapterId);
+      const chapter = detail.chapters.find(ch => ch.chapterId === req.params.chapterId);
       if (chapter) {
         return res.json({
           ok: true,
@@ -802,8 +988,18 @@ app.use((err, _req, res, _next) => {
   });
 });
 
-app.listen(PORT, HOST, () => {
-  console.log(`Server chạy tại http://${HOST}:${PORT}`);
-  console.log(`Data folder: ${DATA_DIR}`);
-  console.log(`Manga folder: ${MANGA_DIR}`);
+async function main() {
+  await bootstrap();
+
+  app.listen(PORT, HOST, () => {
+    console.log(`Server chạy tại http://${HOST}:${PORT}`);
+    console.log(`Store mode: ${USE_GITHUB ? 'GitHub API' : 'Local filesystem'}`);
+    console.log(`Data folder: ${DATA_DIR}`);
+    console.log(`Manga folder: ${MANGA_DIR}`);
+  });
+}
+
+main().catch(err => {
+  console.error('Fatal startup error:', err);
+  process.exit(1);
 });

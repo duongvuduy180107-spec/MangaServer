@@ -1,0 +1,240 @@
+{
+  "mangaId": "manga_0002",
+  "slug": "gyarumaid",
+  "title": "Bên tiểu thư là cái kết mãi đỉnh!",
+  "author": "Kagiana",
+  "genres": [
+    "Comedy",
+    "Drama",
+    "Gyaru",
+    "Isekai",
+    "Maid",
+    "Supernatural",
+    "Yuri"
+  ],
+  "summary": "Chuyển sinh làm hầu gái cho nhân vật phản diện cho vui ai dè tôi trở thành nữ chính yuri :)))",
+  "description": "",
+  "coverUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Hover/Hover.jpg",
+  "coverFile": {
+    "originalName": null,
+    "mimetype": null,
+    "size": null,
+    "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Hover/Hover.jpg"
+  },
+  "chapters": [
+    {
+      "chapterId": "chap_0001",
+      "mangaId": "manga_0002",
+      "chapterNumber": 1,
+      "chapterTitle": "Bắt gặp nụ cười ấy.",
+      "pageCount": 40,
+      "pages": [
+        {
+          "page": 1,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/1.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/1.jpg"
+        },
+        {
+          "page": 2,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/2.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/2.jpg"
+        },
+        {
+          "page": 3,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/3.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/3.jpg"
+        },
+        {
+          "page": 4,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/4.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/4.jpg"
+        },
+        {
+          "page": 5,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/5.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/5.jpg"
+        },
+        {
+          "page": 6,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/6.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/6.jpg"
+        },
+        {
+          "page": 7,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/7.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/7.jpg"
+        },
+        {
+          "page": 8,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/8.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/8.jpg"
+        },
+        {
+          "page": 9,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/9.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/9.jpg"
+        },
+        {
+          "page": 10,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/10.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/10.jpg"
+        },
+        {
+          "page": 11,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/11.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/11.jpg"
+        },
+        {
+          "page": 12,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/12.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/12.jpg"
+        },
+        {
+          "page": 13,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/13.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/13.jpg"
+        },
+        {
+          "page": 14,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/14.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/14.jpg"
+        },
+        {
+          "page": 15,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/15.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/15.jpg"
+        },
+        {
+          "page": 16,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/16.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/16.jpg"
+        },
+        {
+          "page": 17,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/17.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/17.jpg"
+        },
+        {
+          "page": 18,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/18.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/18.jpg"
+        },
+        {
+          "page": 19,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/19.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/19.jpg"
+        },
+        {
+          "page": 20,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/20.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/20.jpg"
+        },
+        {
+          "page": 21,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/21.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/21.jpg"
+        },
+        {
+          "page": 22,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/22.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/22.jpg"
+        },
+        {
+          "page": 23,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/23.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/23.jpg"
+        },
+        {
+          "page": 24,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/24.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/24.jpg"
+        },
+        {
+          "page": 25,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/25.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/25.jpg"
+        },
+        {
+          "page": 26,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/26.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/26.jpg"
+        },
+        {
+          "page": 27,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/27.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/27.jpg"
+        },
+        {
+          "page": 28,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/28.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/28.jpg"
+        },
+        {
+          "page": 29,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/29.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/29.jpg"
+        },
+        {
+          "page": 30,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/30.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/30.jpg"
+        },
+        {
+          "page": 31,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/31.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/31.jpg"
+        },
+        {
+          "page": 32,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/32.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/32.jpg"
+        },
+        {
+          "page": 33,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/33.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/33.jpg"
+        },
+        {
+          "page": 34,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/34.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/34.jpg"
+        },
+        {
+          "page": 35,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/35.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/35.jpg"
+        },
+        {
+          "page": 36,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/36.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/36.jpg"
+        },
+        {
+          "page": 37,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/37.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/37.jpg"
+        },
+        {
+          "page": 38,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/38.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/38.jpg"
+        },
+        {
+          "page": 39,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/39.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/39.jpg"
+        },
+        {
+          "page": 40,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/40.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Gyarumaid/Chapter/Chapter1/40.jpg"
+        }
+      ],
+      "createdAt": "2026-07-24T07:47:33.928Z",
+      "updatedAt": "2026-07-24T07:47:33.928Z"
+    }
+  ],
+  "chapterCount": 1,
+  "createdAt": "2026-07-24T07:39:19.659Z",
+  "updatedAt": "2026-07-25T05:42:16.528Z"
+}

@@ -1,0 +1,519 @@
+{
+  "mangaId": "manga_0001",
+  "slug": "dead-tube",
+  "title": "Dead Tube",
+  "author": "Mikoto Yamaguchi",
+  "genres": [
+    "Horror",
+    "Shounen"
+  ],
+  "summary": "Dead Tube là một nền tảng video trực tuyến đầy rẫy những nội dung man rợ, nơi người xem bỏ tiền để xem những thước phim gây sốc nhất. Machiya Tomohiro, một nam sinh trung học bình thường, bị kéo vào vòng xoáy của trò chơi chết chóc này sau khi hợp tác cùng cô bạn xinh đẹp nhưng đầy bí ẩn, Mashiro Mai.\n​Tại đây, luật chơi vô cùng đơn giản nhưng tàn khốc: Nếu video của bạn có lượt xem cao nhất, bạn sẽ nhận được một số tiền khổng lồ. Ngược lại, nếu video của bạn thất bại hoặc bị khán giả quay lưng, bạn sẽ phải chịu những hình phạt khủng khiếp nhất. Liệu Tomohiro có thể giữ được nhân tính trước sự tha hóa của quyền lực và dục vọng, hay cậu sẽ trở thành một 'đạo diễn' máu lạnh tiếp theo của Dead Tube?\n​Lưu ý: Bộ truyện chứa nhiều nội dung bạo lực, tâm lý đen tối và các yếu tố gây sốc. Độc giả nên cân nhắc trước khi theo dõi.",
+  "description": "Tham gia Dead Tube – nơi tiền bạc và danh vọng được đánh đổi bằng máu. Một cuộc chơi sinh tồn điên rồ mà ở đó, người quay phim phải ghi lại những thước phim kinh hoàng nhất để giành lấy sự sống và tiền tài. Bạn đã sẵn sàng để trở thành người sống sót cuối cùng?",
+  "coverUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Cover/dead-tube-cover.jpg",
+  "coverFile": {
+    "originalName": null,
+    "mimetype": null,
+    "size": null,
+    "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Cover/dead-tube-cover.jpg"
+  },
+  "chapters": [
+    {
+      "chapterId": "chap_0000",
+      "mangaId": "manga_0001",
+      "chapterNumber": 0,
+      "chapterTitle": "",
+      "pageCount": 4,
+      "pages": [
+        {
+          "page": 1,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter0/dead-tube-2.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter0/dead-tube-2.jpg"
+        },
+        {
+          "page": 2,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter0/dead-tube-3.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter0/dead-tube-3.jpg"
+        },
+        {
+          "page": 3,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter0/dead-tube-4.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter0/dead-tube-4.jpg"
+        },
+        {
+          "page": 4,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter0/dead-tube-5.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter0/dead-tube-5.jpg"
+        }
+      ],
+      "createdAt": "2026-07-23T18:42:42.761Z",
+      "updatedAt": "2026-07-23T18:42:42.761Z"
+    },
+    {
+      "chapterId": "chap_0001_1",
+      "mangaId": "manga_0001",
+      "chapterNumber": 1.1,
+      "chapterTitle": "",
+      "pageCount": 25,
+      "pages": [
+        {
+          "page": 1,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter 1.1/dead-tube-1.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter 1.1/dead-tube-1.jpg"
+        },
+        {
+          "page": 2,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter 1.1/dead-tube-2.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter 1.1/dead-tube-2.jpg"
+        },
+        {
+          "page": 3,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter 1.1/dead-tube-3.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter 1.1/dead-tube-3.jpg"
+        },
+        {
+          "page": 4,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter 1.1/dead-tube-4.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter 1.1/dead-tube-4.jpg"
+        },
+        {
+          "page": 5,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter 1.1/dead-tube-5.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter 1.1/dead-tube-5.jpg"
+        },
+        {
+          "page": 6,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter 1.1/dead-tube-6.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter 1.1/dead-tube-6.jpg"
+        },
+        {
+          "page": 7,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter 1.1/dead-tube-7.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter 1.1/dead-tube-7.jpg"
+        },
+        {
+          "page": 8,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter 1.1/dead-tube-8.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter 1.1/dead-tube-8.jpg"
+        },
+        {
+          "page": 9,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter 1.1/dead-tube-9.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter 1.1/dead-tube-9.jpg"
+        },
+        {
+          "page": 10,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter 1.1/dead-tube-10.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter 1.1/dead-tube-10.jpg"
+        },
+        {
+          "page": 11,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter 1.1/dead-tube-11.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter 1.1/dead-tube-11.jpg"
+        },
+        {
+          "page": 12,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter 1.1/dead-tube-12.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter 1.1/dead-tube-12.jpg"
+        },
+        {
+          "page": 13,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter 1.1/dead-tube-13.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter 1.1/dead-tube-13.jpg"
+        },
+        {
+          "page": 14,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter 1.1/dead-tube-14.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter 1.1/dead-tube-14.jpg"
+        },
+        {
+          "page": 15,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter 1.1/dead-tube-15.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter 1.1/dead-tube-15.jpg"
+        },
+        {
+          "page": 16,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter 1.1/dead-tube-16.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter 1.1/dead-tube-16.jpg"
+        },
+        {
+          "page": 17,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter 1.1/dead-tube-17.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter 1.1/dead-tube-17.jpg"
+        },
+        {
+          "page": 18,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter 1.1/dead-tube-18.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter 1.1/dead-tube-18.jpg"
+        },
+        {
+          "page": 19,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter 1.1/dead-tube-19.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter 1.1/dead-tube-19.jpg"
+        },
+        {
+          "page": 20,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter 1.1/dead-tube-20.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter 1.1/dead-tube-20.jpg"
+        },
+        {
+          "page": 21,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter 1.1/dead-tube-21.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter 1.1/dead-tube-21.jpg"
+        },
+        {
+          "page": 22,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter 1.1/dead-tube-22.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter 1.1/dead-tube-22.jpg"
+        },
+        {
+          "page": 23,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter 1.1/dead-tube-23.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter 1.1/dead-tube-23.jpg"
+        },
+        {
+          "page": 24,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter 1.1/dead-tube-24.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter 1.1/dead-tube-24.jpg"
+        },
+        {
+          "page": 25,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter 1.1/dead-tube-25.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter 1.1/dead-tube-25.jpg"
+        }
+      ],
+      "createdAt": "2026-07-24T04:08:51.289Z",
+      "updatedAt": "2026-07-24T04:08:51.289Z"
+    },
+    {
+      "chapterId": "chap_0001_2",
+      "mangaId": "manga_0001",
+      "chapterNumber": 1.2,
+      "chapterTitle": "",
+      "pageCount": 23,
+      "pages": [
+        {
+          "page": 1,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter1.2/dead-tube-1.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter1.2/dead-tube-1.jpg"
+        },
+        {
+          "page": 2,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter1.2/dead-tube-2.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter1.2/dead-tube-2.jpg"
+        },
+        {
+          "page": 3,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter1.2/dead-tube-3.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter1.2/dead-tube-3.jpg"
+        },
+        {
+          "page": 4,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter1.2/dead-tube-4.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter1.2/dead-tube-4.jpg"
+        },
+        {
+          "page": 5,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter1.2/dead-tube-5.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter1.2/dead-tube-5.jpg"
+        },
+        {
+          "page": 6,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter1.2/dead-tube-6.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter1.2/dead-tube-6.jpg"
+        },
+        {
+          "page": 7,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter1.2/dead-tube-7.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter1.2/dead-tube-7.jpg"
+        },
+        {
+          "page": 8,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter1.2/dead-tube-8.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter1.2/dead-tube-8.jpg"
+        },
+        {
+          "page": 9,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter1.2/dead-tube-9.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter1.2/dead-tube-9.jpg"
+        },
+        {
+          "page": 10,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter1.2/dead-tube-10.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter1.2/dead-tube-10.jpg"
+        },
+        {
+          "page": 11,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter1.2/dead-tube-11.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter1.2/dead-tube-11.jpg"
+        },
+        {
+          "page": 12,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter1.2/dead-tube-12.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter1.2/dead-tube-12.jpg"
+        },
+        {
+          "page": 13,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter1.2/dead-tube-13.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter1.2/dead-tube-13.jpg"
+        },
+        {
+          "page": 14,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter1.2/dead-tube-14.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter1.2/dead-tube-14.jpg"
+        },
+        {
+          "page": 15,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter1.2/dead-tube-15.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter1.2/dead-tube-15.jpg"
+        },
+        {
+          "page": 16,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter1.2/dead-tube-16.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter1.2/dead-tube-16.jpg"
+        },
+        {
+          "page": 17,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter1.2/dead-tube-17.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter1.2/dead-tube-17.jpg"
+        },
+        {
+          "page": 18,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter1.2/dead-tube-18.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter1.2/dead-tube-18.jpg"
+        },
+        {
+          "page": 19,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter1.2/dead-tube-19.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter1.2/dead-tube-19.jpg"
+        },
+        {
+          "page": 20,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter1.2/dead-tube-20.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter1.2/dead-tube-20.jpg"
+        },
+        {
+          "page": 21,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter1.2/dead-tube-21.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter1.2/dead-tube-21.jpg"
+        },
+        {
+          "page": 22,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter1.2/dead-tube-22.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter1.2/dead-tube-22.jpg"
+        },
+        {
+          "page": 23,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter1.2/dead-tube-23.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead Tube/Chapter/Chapter1.2/dead-tube-23.jpg"
+        }
+      ],
+      "createdAt": "2026-07-24T08:41:19.787Z",
+      "updatedAt": "2026-07-24T08:41:19.787Z"
+    },
+    {
+      "chapterId": "chap_0002_1",
+      "mangaId": "manga_0001",
+      "chapterNumber": 2.1,
+      "chapterTitle": "",
+      "pageCount": 18,
+      "pages": [
+        {
+          "page": 1,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.1/dead-tube-1.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.1/dead-tube-1.jpg"
+        },
+        {
+          "page": 2,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.1/dead-tube-2.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.1/dead-tube-2.jpg"
+        },
+        {
+          "page": 3,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.1/dead-tube-3.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.1/dead-tube-3.jpg"
+        },
+        {
+          "page": 4,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.1/dead-tube-4.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.1/dead-tube-4.jpg"
+        },
+        {
+          "page": 5,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.1/dead-tube-5.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.1/dead-tube-5.jpg"
+        },
+        {
+          "page": 6,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.1/dead-tube-6.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.1/dead-tube-6.jpg"
+        },
+        {
+          "page": 7,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.1/dead-tube-7.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.1/dead-tube-7.jpg"
+        },
+        {
+          "page": 8,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.1/dead-tube-8.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.1/dead-tube-8.jpg"
+        },
+        {
+          "page": 9,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.1/dead-tube-9.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.1/dead-tube-9.jpg"
+        },
+        {
+          "page": 10,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.1/dead-tube-10.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.1/dead-tube-10.jpg"
+        },
+        {
+          "page": 11,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.1/dead-tube-11.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.1/dead-tube-11.jpg"
+        },
+        {
+          "page": 12,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.1/dead-tube-12.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.1/dead-tube-12.jpg"
+        },
+        {
+          "page": 13,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.1/dead-tube-13.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.1/dead-tube-13.jpg"
+        },
+        {
+          "page": 14,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.1/dead-tube-14.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.1/dead-tube-14.jpg"
+        },
+        {
+          "page": 15,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.1/dead-tube-15.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.1/dead-tube-15.jpg"
+        },
+        {
+          "page": 16,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.1/dead-tube-16.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.1/dead-tube-16.jpg"
+        },
+        {
+          "page": 17,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.1/dead-tube-17.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.1/dead-tube-17.jpg"
+        },
+        {
+          "page": 18,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.1/dead-tube-18.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.1/dead-tube-18.jpg"
+        }
+      ],
+      "createdAt": "2026-07-25T04:32:14.039Z",
+      "updatedAt": "2026-07-25T04:32:14.039Z"
+    },
+    {
+      "chapterId": "chap_0002_2",
+      "mangaId": "manga_0001",
+      "chapterNumber": 2.2,
+      "chapterTitle": "",
+      "pageCount": 18,
+      "pages": [
+        {
+          "page": 1,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.2/dead-tube-1.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.2/dead-tube-1.jpg"
+        },
+        {
+          "page": 2,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.2/dead-tube-2.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.2/dead-tube-2.jpg"
+        },
+        {
+          "page": 3,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.2/dead-tube-3.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.2/dead-tube-3.jpg"
+        },
+        {
+          "page": 4,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.2/dead-tube-4.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.2/dead-tube-4.jpg"
+        },
+        {
+          "page": 5,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.2/dead-tube-5.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.2/dead-tube-5.jpg"
+        },
+        {
+          "page": 6,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.2/dead-tube-6.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.2/dead-tube-6.jpg"
+        },
+        {
+          "page": 7,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.2/dead-tube-7.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.2/dead-tube-7.jpg"
+        },
+        {
+          "page": 8,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.2/dead-tube-8.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.2/dead-tube-8.jpg"
+        },
+        {
+          "page": 9,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.2/dead-tube-9.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.2/dead-tube-9.jpg"
+        },
+        {
+          "page": 10,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.2/dead-tube-10.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.2/dead-tube-10.jpg"
+        },
+        {
+          "page": 11,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.2/dead-tube-11.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.2/dead-tube-11.jpg"
+        },
+        {
+          "page": 12,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.2/dead-tube-12.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.2/dead-tube-12.jpg"
+        },
+        {
+          "page": 13,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.2/dead-tube-13.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.2/dead-tube-13.jpg"
+        },
+        {
+          "page": 14,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.2/dead-tube-14.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.2/dead-tube-14.jpg"
+        },
+        {
+          "page": 15,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.2/dead-tube-15.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.2/dead-tube-15.jpg"
+        },
+        {
+          "page": 16,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.2/dead-tube-16.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.2/dead-tube-16.jpg"
+        },
+        {
+          "page": 17,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.2/dead-tube-17.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.2/dead-tube-17.jpg"
+        },
+        {
+          "page": 18,
+          "imageUrl": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.2/dead-tube-18.jpg",
+          "savedPath": "https://duongvuduy180107-spec.github.io/Manga_Server/Dead%20Tube/Chapter/Chapter2.2/dead-tube-18.jpg"
+        }
+      ],
+      "createdAt": "2026-07-25T05:43:41.937Z",
+      "updatedAt": "2026-07-25T05:43:41.937Z"
+    }
+  ],
+  "chapterCount": 5,
+  "createdAt": "2026-07-23T18:21:42.488Z",
+  "updatedAt": "2026-07-25T05:43:41.937Z"
+}

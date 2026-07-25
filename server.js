@@ -1,26 +1,22 @@
+// server.js
 const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
-const axios = require('axios');
+
+const github = require('./github');
 
 const app = express();
 
 const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST || '0.0.0.0';
 
-const GITHUB_TOKEN = process.env.GITHUB_TOKEN || '';
-const GITHUB_OWNER = process.env.GITHUB_OWNER || '';
-const GITHUB_REPO = process.env.GITHUB_REPO || '';
-const GITHUB_BRANCH = process.env.GITHUB_BRANCH || 'main';
-const USE_GITHUB = Boolean(GITHUB_TOKEN && GITHUB_OWNER && GITHUB_REPO);
+const USE_GITHUB = github.USE_GITHUB;
 
 const ROOT_DIR = __dirname;
 const DATA_DIR = path.join(ROOT_DIR, 'data');
 const MANGA_DIR = path.join(DATA_DIR, 'manga');
 const MANGA_LIST_FILE = path.join(DATA_DIR, 'manga.json');
-
-const GH_API_BASE = 'https://api.github.com';
 
 let mangaListCache = [];
 const detailCache = new Map();
@@ -226,113 +222,19 @@ function ensureBaseFilesLocal() {
   }
 }
 
-function githubRepoPath(filePath) {
-  return String(filePath || '')
-    .split('/')
-    .map(encodeURIComponent)
-    .join('/');
-}
-
-function githubHeaders() {
-  return {
-    Authorization: `Bearer ${GITHUB_TOKEN}`,
-    Accept: 'application/vnd.github+json',
-    'X-GitHub-Api-Version': '2022-11-28',
-    'User-Agent': 'MangaServer',
-  };
-}
-
-function githubFileUrl(filePath) {
-  return `${GH_API_BASE}/repos/${encodeURIComponent(GITHUB_OWNER)}/${encodeURIComponent(GITHUB_REPO)}/contents/${githubRepoPath(filePath)}`;
-}
-
-async function githubGetFileMeta(filePath) {
-  const url = `${githubFileUrl(filePath)}?ref=${encodeURIComponent(GITHUB_BRANCH)}`;
-  const res = await axios.get(url, {
-    headers: githubHeaders(),
-    validateStatus: () => true,
-  });
-
-  if (res.status === 404) return null;
-  if (res.status < 200 || res.status >= 300) {
-    throw new Error(`GitHub GET failed for ${filePath}: ${res.status} ${JSON.stringify(res.data)}`);
-  }
-  return res.data;
-}
-
-async function githubReadJson(filePath, fallback) {
-  try {
-    const meta = await githubGetFileMeta(filePath);
-    if (!meta || !meta.content) return fallback;
-
-    const text = Buffer.from(String(meta.content).replace(/\n/g, ''), 'base64').toString('utf8');
-    if (!text.trim()) return fallback;
-    return JSON.parse(text);
-  } catch (err) {
-    console.error(`githubReadJson error: ${filePath}`, err.message);
-    return fallback;
-  }
-}
-
-async function githubWriteJson(filePath, data, message) {
-  const existing = await githubGetFileMeta(filePath);
-
-  const body = {
-    message: message || `update ${filePath}`,
-    content: Buffer.from(JSON.stringify(data, null, 2), 'utf8').toString('base64'),
-    branch: GITHUB_BRANCH,
-  };
-
-  if (existing?.sha) body.sha = existing.sha;
-
-  const res = await axios.put(githubFileUrl(filePath), body, {
-    headers: githubHeaders(),
-    validateStatus: () => true,
-  });
-
-  if (res.status < 200 || res.status >= 300) {
-    throw new Error(`GitHub PUT failed for ${filePath}: ${res.status} ${JSON.stringify(res.data)}`);
-  }
-
-  return res.data;
-}
-
-async function githubDeleteFile(filePath, message) {
-  const existing = await githubGetFileMeta(filePath);
-  if (!existing?.sha) return null;
-
-  const body = {
-    message: message || `delete ${filePath}`,
-    sha: existing.sha,
-    branch: GITHUB_BRANCH,
-  };
-
-  const res = await axios.delete(githubFileUrl(filePath), {
-    headers: githubHeaders(),
-    data: body,
-    validateStatus: () => true,
-  });
-
-  if (res.status < 200 || res.status >= 300) {
-    throw new Error(`GitHub DELETE failed for ${filePath}: ${res.status} ${JSON.stringify(res.data)}`);
-  }
-
-  return res.data;
-}
-
 async function storeReadJson(filePath, fallback) {
-  if (USE_GITHUB) return githubReadJson(filePath, fallback);
+  if (USE_GITHUB) return github.githubReadJson(filePath, fallback);
   return localReadJson(filePath, fallback);
 }
 
 async function storeWriteJson(filePath, data, message) {
-  if (USE_GITHUB) return githubWriteJson(filePath, data, message);
+  if (USE_GITHUB) return github.githubWriteJson(filePath, data, message);
   localWriteJson(filePath, data);
   return { ok: true };
 }
 
 async function storeDelete(filePath, message) {
-  if (USE_GITHUB) return githubDeleteFile(filePath, message);
+  if (USE_GITHUB) return github.githubDeleteFile(filePath, message);
   localDeletePath(filePath);
   return { ok: true };
 }
@@ -363,6 +265,7 @@ function getMangaSummaryById(mangaId) {
 async function ensureDetailLoaded(slug) {
   if (!slug) return null;
   if (detailCache.has(slug)) return detailCache.get(slug);
+
   const detail = await storeReadJson(mangaFilePath(slug), null);
   if (detail) detailCache.set(slug, detail);
   return detail;
@@ -413,6 +316,25 @@ app.get('/api/health', (_req, res) => {
     store: USE_GITHUB ? 'github' : 'local',
     mangaCount: mangaListCache.length,
   });
+});
+
+app.get('/api/refresh', async (_req, res) => {
+  try {
+    await bootstrap();
+    res.json({
+      ok: true,
+      message: 'cache refreshed',
+      mangaCount: mangaListCache.length,
+      store: USE_GITHUB ? 'github' : 'local',
+    });
+  } catch (err) {
+    console.error('GET /api/refresh error:', err);
+    res.status(500).json({
+      ok: false,
+      message: 'failed to refresh cache',
+      error: err.message,
+    });
+  }
 });
 
 app.get('/api/genres', (_req, res) => {

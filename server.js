@@ -29,16 +29,6 @@ function ensureDir(dir) {
   fs.mkdirSync(dir, { recursive: true });
 }
 
-function safeRm(targetPath) {
-  try {
-    if (fs.existsSync(targetPath)) {
-      fs.rmSync(targetPath, { recursive: true, force: true });
-    }
-  } catch (err) {
-    console.error('safeRm error:', targetPath, err.message);
-  }
-}
-
 function localReadJson(filePath, fallback) {
   try {
     if (!fs.existsSync(filePath)) return fallback;
@@ -285,58 +275,49 @@ async function githubReadJson(filePath, fallback) {
 }
 
 async function githubWriteJson(filePath, data, message) {
-  try {
-    const existing = await githubGetFileMeta(filePath);
-    const body = {
-      message: message || `update ${filePath}`,
-      content: Buffer.from(JSON.stringify(data, null, 2), 'utf8').toString('base64'),
-      branch: GITHUB_BRANCH,
-    };
+  const existing = await githubGetFileMeta(filePath);
 
-    if (existing?.sha) body.sha = existing.sha;
+  const body = {
+    message: message || `update ${filePath}`,
+    content: Buffer.from(JSON.stringify(data, null, 2), 'utf8').toString('base64'),
+    branch: GITHUB_BRANCH,
+  };
 
-    const res = await axios.put(githubFileUrl(filePath), body, {
-      headers: githubHeaders(),
-      validateStatus: () => true,
-    });
+  if (existing?.sha) body.sha = existing.sha;
 
-    if (res.status < 200 || res.status >= 300) {
-      throw new Error(`GitHub PUT failed for ${filePath}: ${res.status} ${JSON.stringify(res.data)}`);
-    }
+  const res = await axios.put(githubFileUrl(filePath), body, {
+    headers: githubHeaders(),
+    validateStatus: () => true,
+  });
 
-    return res.data;
-  } catch (err) {
-    console.error(`githubWriteJson error: ${filePath}`, err.message);
-    throw err;
+  if (res.status < 200 || res.status >= 300) {
+    throw new Error(`GitHub PUT failed for ${filePath}: ${res.status} ${JSON.stringify(res.data)}`);
   }
+
+  return res.data;
 }
 
 async function githubDeleteFile(filePath, message) {
-  try {
-    const existing = await githubGetFileMeta(filePath);
-    if (!existing?.sha) return null;
+  const existing = await githubGetFileMeta(filePath);
+  if (!existing?.sha) return null;
 
-    const body = {
-      message: message || `delete ${filePath}`,
-      sha: existing.sha,
-      branch: GITHUB_BRANCH,
-    };
+  const body = {
+    message: message || `delete ${filePath}`,
+    sha: existing.sha,
+    branch: GITHUB_BRANCH,
+  };
 
-    const res = await axios.delete(githubFileUrl(filePath), {
-      headers: githubHeaders(),
-      data: body,
-      validateStatus: () => true,
-    });
+  const res = await axios.delete(githubFileUrl(filePath), {
+    headers: githubHeaders(),
+    data: body,
+    validateStatus: () => true,
+  });
 
-    if (res.status < 200 || res.status >= 300) {
-      throw new Error(`GitHub DELETE failed for ${filePath}: ${res.status} ${JSON.stringify(res.data)}`);
-    }
-
-    return res.data;
-  } catch (err) {
-    console.error(`githubDeleteFile error: ${filePath}`, err.message);
-    throw err;
+  if (res.status < 200 || res.status >= 300) {
+    throw new Error(`GitHub DELETE failed for ${filePath}: ${res.status} ${JSON.stringify(res.data)}`);
   }
+
+  return res.data;
 }
 
 async function storeReadJson(filePath, fallback) {
@@ -365,6 +346,7 @@ async function bootstrap() {
   if (!Array.isArray(mangaListCache)) mangaListCache = [];
 
   detailCache.clear();
+
   for (const manga of mangaListCache) {
     if (!manga?.slug) continue;
     const detail = await storeReadJson(mangaFilePath(manga.slug), null);
@@ -429,10 +411,11 @@ app.get('/api/health', (_req, res) => {
     message: 'server is alive',
     time: new Date().toISOString(),
     store: USE_GITHUB ? 'github' : 'local',
+    mangaCount: mangaListCache.length,
   });
 });
 
-app.get('/api/genres', async (_req, res) => {
+app.get('/api/genres', (_req, res) => {
   const genres = [...new Set(
     mangaListCache.flatMap(m => Array.isArray(m.genres) ? m.genres : [])
   )].sort((a, b) => a.localeCompare(b, 'vi'));
@@ -444,7 +427,7 @@ app.get('/api/genres', async (_req, res) => {
   });
 });
 
-app.get('/api/manga', async (_req, res) => {
+app.get('/api/manga', (_req, res) => {
   const mangaList = sortNewestFirst(mangaListCache).map(toPublicManga);
   res.json({
     ok: true,
@@ -672,6 +655,7 @@ app.delete('/api/manga/:mangaId', async (req, res) => {
 
     const manga = mangaListCache[idx];
     mangaListCache.splice(idx, 1);
+
     await persistMangaList();
     await removeMangaDetail(manga.slug);
 
@@ -749,8 +733,6 @@ app.post('/api/chapter', async (req, res) => {
     detail.chapterCount = detail.chapters.length;
     detail.updatedAt = now;
 
-    manga.chapterCount = detail.chapterCount;
-    manga.updatedAt = now;
     mangaListCache[mangaIndex] = buildMangaSummary(detail);
     detailCache.set(detail.slug, detail);
 
@@ -850,9 +832,6 @@ app.put('/api/chapter/:chapterId', async (req, res) => {
     const now = new Date().toISOString();
     chapter.updatedAt = now;
     detail.updatedAt = now;
-
-    manga.updatedAt = now;
-    manga.chapterCount = chapterCountFromDetail(detail);
 
     mangaListCache[mangaIndex] = buildMangaSummary(detail);
     detailCache.set(detail.slug, detail);

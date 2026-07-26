@@ -30,33 +30,6 @@ function ensureDir(dir) {
   fs.mkdirSync(dir, { recursive: true });
 }
 
-function localReadJson(filePath, fallback) {
-  try {
-    if (!fs.existsSync(filePath)) return fallback;
-    const raw = fs.readFileSync(filePath, 'utf8');
-    if (!raw.trim()) return fallback;
-    return JSON.parse(raw);
-  } catch (err) {
-    console.error(`localReadJson error: ${filePath}`, err.message);
-    return fallback;
-  }
-}
-
-function localWriteJson(filePath, data) {
-  ensureDir(path.dirname(filePath));
-  fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf8');
-}
-
-function localDeletePath(filePath) {
-  try {
-    if (fs.existsSync(filePath)) {
-      fs.rmSync(filePath, { recursive: true, force: true });
-    }
-  } catch (err) {
-    console.error(`localDeletePath error: ${filePath}`, err.message);
-  }
-}
-
 function sanitizeText(value) {
   return typeof value === 'string' ? value.trim() : '';
 }
@@ -101,10 +74,6 @@ function nextId(prefix, existingList, keyName) {
     if (Number.isFinite(num)) max = Math.max(max, num);
   }
   return `${prefix}${String(max + 1).padStart(4, '0')}`;
-}
-
-function mangaFilePath(slug) {
-  return path.join(MANGA_DIR, `${slug}.json`);
 }
 
 function isAbsoluteUrl(url) {
@@ -224,6 +193,33 @@ function ensureBaseFilesLocal() {
   ensureDir(MANGA_DIR);
   if (!fs.existsSync(MANGA_LIST_FILE)) {
     localWriteJson(MANGA_LIST_FILE, []);
+  }
+}
+
+function localReadJson(filePath, fallback) {
+  try {
+    if (!fs.existsSync(filePath)) return fallback;
+    const raw = fs.readFileSync(filePath, 'utf8');
+    if (!raw.trim()) return fallback;
+    return JSON.parse(raw);
+  } catch (err) {
+    console.error(`localReadJson error: ${filePath}`, err.message);
+    return fallback;
+  }
+}
+
+function localWriteJson(filePath, data) {
+  ensureDir(path.dirname(filePath));
+  fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf8');
+}
+
+function localDeletePath(filePath) {
+  try {
+    if (fs.existsSync(filePath)) {
+      fs.rmSync(filePath, { recursive: true, force: true });
+    }
+  } catch (err) {
+    console.error(`localDeletePath error: ${filePath}`, err.message);
   }
 }
 
@@ -354,6 +350,10 @@ async function bootstrap() {
   console.log(`[BOOT] mode=${USE_GITHUB ? 'github' : 'local'} mangas=${mangaListCache.length}`);
 }
 
+function mangaFilePath(slug) {
+  return path.join(MANGA_DIR, `${slug}.json`);
+}
+
 function getMangaSummaryById(mangaId) {
   return mangaListCache.find(m => m.mangaId === mangaId) || null;
 }
@@ -392,11 +392,8 @@ async function removeMangaDetail(slug) {
 function upsertSummaryFromDetail(detail) {
   const summary = buildMangaSummary(detail);
   const idx = mangaListCache.findIndex(m => m.mangaId === detail.mangaId);
-  if (idx === -1) {
-    mangaListCache.push(summary);
-  } else {
-    mangaListCache[idx] = summary;
-  }
+  if (idx === -1) mangaListCache.push(summary);
+  else mangaListCache[idx] = summary;
 }
 
 function sendError(res, status, message, extra = {}) {
@@ -895,6 +892,14 @@ app.use('/api/admin', api);
 
 app.get('/', (_req, res) => {
   res.send('<h1>MangaServer is running</h1><p>Try <a href="/api/health">/api/health</a></p>');
+});
+
+app.get('/api', (_req, res) => {
+  res.json({
+    ok: true,
+    message: 'MangaServer API',
+    routes: ['/api/health', '/api/manga', '/api/genres', '/api/debug/state'],
+  });
 });
 
 app.use((err, _req, res, _next) => {

@@ -5,6 +5,15 @@ const path = require('path');
 const axios = require('axios');
 
 const app = express();
+
+// ==========================================
+// ĐÂY LÀ 2 DÒNG QUAN TRỌNG NHẤT ĐÃ ĐƯỢC THÊM
+// ==========================================
+app.use(cors()); // Cho phép các domain khác (như GitHub Pages) gọi API
+app.use(express.json({ limit: '50mb' })); // Đọc dữ liệu JSON từ request body (cấp limit lớn xíu để lỡ lưu mảng ảnh dài)
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+// ==========================================
+
 const api = express.Router();
 
 const PORT = process.env.PORT || 3000;

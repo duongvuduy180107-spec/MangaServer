@@ -1,22 +1,27 @@
-// server.js
 const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
-
-const github = require('./github');
+const axios = require('axios');
 
 const app = express();
+const api = express.Router();
 
 const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST || '0.0.0.0';
 
-const USE_GITHUB = github.USE_GITHUB;
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN || '';
+const GITHUB_OWNER = process.env.GITHUB_OWNER || '';
+const GITHUB_REPO = process.env.GITHUB_REPO || '';
+const GITHUB_BRANCH = process.env.GITHUB_BRANCH || 'main';
+const USE_GITHUB = Boolean(GITHUB_TOKEN && GITHUB_OWNER && GITHUB_REPO);
 
 const ROOT_DIR = __dirname;
 const DATA_DIR = path.join(ROOT_DIR, 'data');
 const MANGA_DIR = path.join(DATA_DIR, 'manga');
 const MANGA_LIST_FILE = path.join(DATA_DIR, 'manga.json');
+
+const GH_API_BASE = 'https://api.github.com';
 
 let mangaListCache = [];
 const detailCache = new Map();
@@ -222,33 +227,124 @@ function ensureBaseFilesLocal() {
   }
 }
 
+function githubRepoPath(filePath) {
+  return String(filePath || '')
+    .split('/')
+    .map(encodeURIComponent)
+    .join('/');
+}
+
+function githubHeaders() {
+  return {
+    Authorization: `Bearer ${GITHUB_TOKEN}`,
+    Accept: 'application/vnd.github+json',
+    'X-GitHub-Api-Version': '2022-11-28',
+    'User-Agent': 'MangaServer',
+  };
+}
+
+function githubFileUrl(filePath) {
+  return `${GH_API_BASE}/repos/${encodeURIComponent(GITHUB_OWNER)}/${encodeURIComponent(GITHUB_REPO)}/contents/${githubRepoPath(filePath)}`;
+}
+
+async function githubGetFileMeta(filePath) {
+  const url = `${githubFileUrl(filePath)}?ref=${encodeURIComponent(GITHUB_BRANCH)}`;
+  const res = await axios.get(url, {
+    headers: githubHeaders(),
+    validateStatus: () => true,
+  });
+
+  if (res.status === 404) return null;
+  if (res.status < 200 || res.status >= 300) {
+    throw new Error(`GitHub GET failed for ${filePath}: ${res.status} ${JSON.stringify(res.data)}`);
+  }
+  return res.data;
+}
+
+async function githubReadJson(filePath, fallback) {
+  try {
+    const meta = await githubGetFileMeta(filePath);
+    if (!meta || !meta.content) return fallback;
+
+    const text = Buffer.from(String(meta.content).replace(/\n/g, ''), 'base64').toString('utf8');
+    if (!text.trim()) return fallback;
+    return JSON.parse(text);
+  } catch (err) {
+    console.error(`githubReadJson error: ${filePath}`, err.message);
+    return fallback;
+  }
+}
+
+async function githubWriteJson(filePath, data, message) {
+  const existing = await githubGetFileMeta(filePath);
+
+  const body = {
+    message: message || `update ${filePath}`,
+    content: Buffer.from(JSON.stringify(data, null, 2), 'utf8').toString('base64'),
+    branch: GITHUB_BRANCH,
+  };
+
+  if (existing?.sha) body.sha = existing.sha;
+
+  const res = await axios.put(githubFileUrl(filePath), body, {
+    headers: githubHeaders(),
+    validateStatus: () => true,
+  });
+
+  if (res.status < 200 || res.status >= 300) {
+    throw new Error(`GitHub PUT failed for ${filePath}: ${res.status} ${JSON.stringify(res.data)}`);
+  }
+
+  return res.data;
+}
+
+async function githubDeleteFile(filePath, message) {
+  const existing = await githubGetFileMeta(filePath);
+  if (!existing?.sha) return null;
+
+  const body = {
+    message: message || `delete ${filePath}`,
+    sha: existing.sha,
+    branch: GITHUB_BRANCH,
+  };
+
+  const res = await axios.delete(githubFileUrl(filePath), {
+    headers: githubHeaders(),
+    data: body,
+    validateStatus: () => true,
+  });
+
+  if (res.status < 200 || res.status >= 300) {
+    throw new Error(`GitHub DELETE failed for ${filePath}: ${res.status} ${JSON.stringify(res.data)}`);
+  }
+
+  return res.data;
+}
+
 async function storeReadJson(filePath, fallback) {
-  if (USE_GITHUB) return github.githubReadJson(filePath, fallback);
+  if (USE_GITHUB) return githubReadJson(filePath, fallback);
   return localReadJson(filePath, fallback);
 }
 
 async function storeWriteJson(filePath, data, message) {
-  if (USE_GITHUB) return github.githubWriteJson(filePath, data, message);
+  if (USE_GITHUB) return githubWriteJson(filePath, data, message);
   localWriteJson(filePath, data);
   return { ok: true };
 }
 
 async function storeDelete(filePath, message) {
-  if (USE_GITHUB) return github.githubDeleteFile(filePath, message);
+  if (USE_GITHUB) return githubDeleteFile(filePath, message);
   localDeletePath(filePath);
   return { ok: true };
 }
 
 async function bootstrap() {
-  if (!USE_GITHUB) {
-    ensureBaseFilesLocal();
-  }
+  ensureBaseFilesLocal();
 
   mangaListCache = await storeReadJson(MANGA_LIST_FILE, []);
   if (!Array.isArray(mangaListCache)) mangaListCache = [];
 
   detailCache.clear();
-
   for (const manga of mangaListCache) {
     if (!manga?.slug) continue;
     const detail = await storeReadJson(mangaFilePath(manga.slug), null);
@@ -265,7 +361,6 @@ function getMangaSummaryById(mangaId) {
 async function ensureDetailLoaded(slug) {
   if (!slug) return null;
   if (detailCache.has(slug)) return detailCache.get(slug);
-
   const detail = await storeReadJson(mangaFilePath(slug), null);
   if (detail) detailCache.set(slug, detail);
   return detail;
@@ -304,11 +399,15 @@ function upsertSummaryFromDetail(detail) {
   }
 }
 
-app.use(cors());
-app.use(express.json({ limit: '20mb' }));
-app.use(express.urlencoded({ extended: true }));
+function sendError(res, status, message, extra = {}) {
+  return res.status(status).json({
+    ok: false,
+    message,
+    ...extra,
+  });
+}
 
-app.get('/api/health', (_req, res) => {
+api.get('/health', (_req, res) => {
   res.json({
     ok: true,
     message: 'server is alive',
@@ -318,26 +417,22 @@ app.get('/api/health', (_req, res) => {
   });
 });
 
-app.get('/api/refresh', async (_req, res) => {
-  try {
-    await bootstrap();
-    res.json({
-      ok: true,
-      message: 'cache refreshed',
-      mangaCount: mangaListCache.length,
-      store: USE_GITHUB ? 'github' : 'local',
-    });
-  } catch (err) {
-    console.error('GET /api/refresh error:', err);
-    res.status(500).json({
-      ok: false,
-      message: 'failed to refresh cache',
-      error: err.message,
-    });
-  }
+api.get('/debug/state', (_req, res) => {
+  res.json({
+    ok: true,
+    store: USE_GITHUB ? 'github' : 'local',
+    mangaCount: mangaListCache.length,
+    cachedDetails: detailCache.size,
+    github: {
+      configured: USE_GITHUB,
+      owner: GITHUB_OWNER || null,
+      repo: GITHUB_REPO || null,
+      branch: GITHUB_BRANCH || null,
+    },
+  });
 });
 
-app.get('/api/genres', (_req, res) => {
+api.get('/genres', (_req, res) => {
   const genres = [...new Set(
     mangaListCache.flatMap(m => Array.isArray(m.genres) ? m.genres : [])
   )].sort((a, b) => a.localeCompare(b, 'vi'));
@@ -349,7 +444,7 @@ app.get('/api/genres', (_req, res) => {
   });
 });
 
-app.get('/api/manga', (_req, res) => {
+api.get('/manga', (_req, res) => {
   const mangaList = sortNewestFirst(mangaListCache).map(toPublicManga);
   res.json({
     ok: true,
@@ -358,24 +453,31 @@ app.get('/api/manga', (_req, res) => {
   });
 });
 
-app.get('/api/manga/:mangaId', async (req, res) => {
+api.get('/manga/:mangaId/chapters', async (req, res) => {
   try {
     const found = await findMangaById(req.params.mangaId);
 
-    if (!found) {
-      return res.status(404).json({
-        ok: false,
-        message: 'manga not found',
-      });
-    }
+    if (!found) return sendError(res, 404, 'manga not found');
+    if (!found.detail) return sendError(res, 404, 'manga detail file not found', { manga: found.manga });
 
-    if (!found.detail) {
-      return res.status(404).json({
-        ok: false,
-        message: 'manga detail file not found',
-        manga: found.manga,
-      });
-    }
+    res.json({
+      ok: true,
+      mangaId: found.detail.mangaId,
+      slug: found.detail.slug,
+      chapters: sortChapters(found.detail.chapters || []),
+    });
+  } catch (err) {
+    console.error('GET /manga/:mangaId/chapters error:', err);
+    sendError(res, 500, 'failed to load chapters', { error: err.message });
+  }
+});
+
+api.get('/manga/:mangaId', async (req, res) => {
+  try {
+    const found = await findMangaById(req.params.mangaId);
+
+    if (!found) return sendError(res, 404, 'manga not found');
+    if (!found.detail) return sendError(res, 404, 'manga detail file not found', { manga: found.manga });
 
     const detail = toPublicDetail(found.detail);
     detail.chapters = sortChapters(detail.chapters || []);
@@ -385,44 +487,12 @@ app.get('/api/manga/:mangaId', async (req, res) => {
       manga: detail,
     });
   } catch (err) {
-    console.error('GET /api/manga/:mangaId error:', err);
-    res.status(500).json({
-      ok: false,
-      message: 'failed to load manga',
-      error: err.message,
-    });
+    console.error('GET /manga/:mangaId error:', err);
+    sendError(res, 500, 'failed to load manga', { error: err.message });
   }
 });
 
-app.get('/api/manga/:mangaId/chapters', async (req, res) => {
-  try {
-    const found = await findMangaById(req.params.mangaId);
-
-    if (!found) {
-      return res.status(404).json({ ok: false, message: 'manga not found' });
-    }
-
-    if (!found.detail) {
-      return res.status(404).json({ ok: false, message: 'manga detail file not found' });
-    }
-
-    res.json({
-      ok: true,
-      mangaId: found.detail.mangaId,
-      slug: found.detail.slug,
-      chapters: sortChapters(found.detail.chapters || []),
-    });
-  } catch (err) {
-    console.error('GET /api/manga/:mangaId/chapters error:', err);
-    res.status(500).json({
-      ok: false,
-      message: 'failed to load chapters',
-      error: err.message,
-    });
-  }
-});
-
-app.post('/api/manga', async (req, res) => {
+api.post('/manga', async (req, res) => {
   try {
     const title = sanitizeText(req.body.title);
     const author = sanitizeText(req.body.author);
@@ -432,9 +502,7 @@ app.post('/api/manga', async (req, res) => {
     const genres = normalizeGenres(req.body.genres);
     const coverUrl = normalizeUrl(req.body.coverUrl || req.body.cover || req.body.coverLink);
 
-    if (!title) {
-      return res.status(400).json({ ok: false, message: 'title is required' });
-    }
+    if (!title) return sendError(res, 400, 'title is required');
 
     const mangaId = nextId('manga_', mangaListCache, 'mangaId');
     const baseSlug = slugify(rawSlug || title) || mangaId;
@@ -478,30 +546,22 @@ app.post('/api/manga', async (req, res) => {
       manga: toPublicDetail(mangaDetail),
     });
   } catch (err) {
-    console.error('POST /api/manga error:', err);
-    res.status(500).json({
-      ok: false,
-      message: 'failed to create manga',
-      error: err.message,
-    });
+    console.error('POST /manga error:', err);
+    sendError(res, 500, 'failed to create manga', { error: err.message });
   }
 });
 
-app.put('/api/manga/:mangaId', async (req, res) => {
+api.put('/manga/:mangaId', async (req, res) => {
   try {
     const mangaId = req.params.mangaId;
     const listIndex = mangaListCache.findIndex(m => m.mangaId === mangaId);
 
-    if (listIndex === -1) {
-      return res.status(404).json({ ok: false, message: 'manga not found' });
-    }
+    if (listIndex === -1) return sendError(res, 404, 'manga not found');
 
     const oldManga = mangaListCache[listIndex];
     const oldDetail = await ensureDetailLoaded(oldManga.slug);
 
-    if (!oldDetail) {
-      return res.status(404).json({ ok: false, message: 'manga detail file not found' });
-    }
+    if (!oldDetail) return sendError(res, 404, 'manga detail file not found');
 
     const title = req.body.title !== undefined ? sanitizeText(req.body.title) : oldDetail.title;
     const author = req.body.author !== undefined ? sanitizeText(req.body.author) : oldDetail.author;
@@ -511,9 +571,7 @@ app.put('/api/manga/:mangaId', async (req, res) => {
     const genres = req.body.genres !== undefined ? normalizeGenres(req.body.genres) : oldDetail.genres;
     const coverUrl = req.body.coverUrl !== undefined ? normalizeUrl(req.body.coverUrl) : oldDetail.coverUrl;
 
-    if (!title) {
-      return res.status(400).json({ ok: false, message: 'title cannot be empty' });
-    }
+    if (!title) return sendError(res, 400, 'title cannot be empty');
 
     let newSlug = oldDetail.slug;
     if (rawSlug || (req.body.title !== undefined && title !== oldManga.title)) {
@@ -557,23 +615,17 @@ app.put('/api/manga/:mangaId', async (req, res) => {
       manga: toPublicDetail(updatedDetail),
     });
   } catch (err) {
-    console.error('PUT /api/manga/:mangaId error:', err);
-    res.status(500).json({
-      ok: false,
-      message: 'failed to update manga',
-      error: err.message,
-    });
+    console.error('PUT /manga/:mangaId error:', err);
+    sendError(res, 500, 'failed to update manga', { error: err.message });
   }
 });
 
-app.delete('/api/manga/:mangaId', async (req, res) => {
+api.delete('/manga/:mangaId', async (req, res) => {
   try {
     const mangaId = req.params.mangaId;
     const idx = mangaListCache.findIndex(m => m.mangaId === mangaId);
 
-    if (idx === -1) {
-      return res.status(404).json({ ok: false, message: 'manga not found' });
-    }
+    if (idx === -1) return sendError(res, 404, 'manga not found');
 
     const manga = mangaListCache[idx];
     mangaListCache.splice(idx, 1);
@@ -591,16 +643,12 @@ app.delete('/api/manga/:mangaId', async (req, res) => {
       },
     });
   } catch (err) {
-    console.error('DELETE /api/manga/:mangaId error:', err);
-    res.status(500).json({
-      ok: false,
-      message: 'failed to delete manga',
-      error: err.message,
-    });
+    console.error('DELETE /manga/:mangaId error:', err);
+    sendError(res, 500, 'failed to delete manga', { error: err.message });
   }
 });
 
-app.post('/api/chapter', async (req, res) => {
+api.post('/chapter', async (req, res) => {
   try {
     const mangaId = sanitizeText(req.body.mangaId);
     const chapterNumber = Number(req.body.chapterNumber);
@@ -608,22 +656,12 @@ app.post('/api/chapter', async (req, res) => {
     const chapterIdInput = sanitizeText(req.body.chapterId);
     const pages = normalizePages(req.body.pages || req.body.pageUrls || req.body.images);
 
-    if (!mangaId) {
-      return res.status(400).json({ ok: false, message: 'mangaId is required' });
-    }
-
-    if (!Number.isFinite(chapterNumber)) {
-      return res.status(400).json({ ok: false, message: 'chapterNumber must be a number' });
-    }
-
-    if (!pages.length) {
-      return res.status(400).json({ ok: false, message: 'pages is required and must not be empty' });
-    }
+    if (!mangaId) return sendError(res, 400, 'mangaId is required');
+    if (!Number.isFinite(chapterNumber)) return sendError(res, 400, 'chapterNumber must be a number');
+    if (!pages.length) return sendError(res, 400, 'pages is required and must not be empty');
 
     const mangaIndex = mangaListCache.findIndex(m => m.mangaId === mangaId);
-    if (mangaIndex === -1) {
-      return res.status(404).json({ ok: false, message: 'manga not found' });
-    }
+    if (mangaIndex === -1) return sendError(res, 404, 'manga not found');
 
     const manga = mangaListCache[mangaIndex];
     const detail = (await ensureDetailLoaded(manga.slug)) || { ...manga, chapters: [] };
@@ -632,11 +670,11 @@ app.post('/api/chapter', async (req, res) => {
     const chapterId = chapterIdInput || nextId('chap_', detail.chapters, 'chapterId');
 
     if (detail.chapters.find(ch => ch.chapterId === chapterId)) {
-      return res.status(409).json({ ok: false, message: 'chapterId already exists' });
+      return sendError(res, 409, 'chapterId already exists');
     }
 
     if (detail.chapters.find(ch => Number(ch.chapterNumber) === Number(chapterNumber))) {
-      return res.status(409).json({ ok: false, message: 'chapterNumber already exists for this manga' });
+      return sendError(res, 409, 'chapterNumber already exists for this manga');
     }
 
     const now = new Date().toISOString();
@@ -681,16 +719,12 @@ app.post('/api/chapter', async (req, res) => {
       },
     });
   } catch (err) {
-    console.error('POST /api/chapter error:', err);
-    res.status(500).json({
-      ok: false,
-      message: 'failed to create chapter',
-      error: err.message,
-    });
+    console.error('POST /chapter error:', err);
+    sendError(res, 500, 'failed to create chapter', { error: err.message });
   }
 });
 
-app.put('/api/chapter/:chapterId', async (req, res) => {
+api.put('/chapter/:chapterId', async (req, res) => {
   try {
     const chapterId = req.params.chapterId;
     const mangaId = sanitizeText(req.body.mangaId);
@@ -702,39 +736,33 @@ app.put('/api/chapter/:chapterId', async (req, res) => {
     const pages = req.body.pages !== undefined ? normalizePages(req.body.pages) : null;
 
     if (!mangaId) {
-      return res.status(400).json({ ok: false, message: 'mangaId is required in body to update chapter' });
+      return sendError(res, 400, 'mangaId is required in body to update chapter');
     }
 
     const mangaIndex = mangaListCache.findIndex(m => m.mangaId === mangaId);
-    if (mangaIndex === -1) {
-      return res.status(404).json({ ok: false, message: 'manga not found' });
-    }
+    if (mangaIndex === -1) return sendError(res, 404, 'manga not found');
 
     const manga = mangaListCache[mangaIndex];
     const detail = await ensureDetailLoaded(manga.slug);
 
     if (!detail || !Array.isArray(detail.chapters)) {
-      return res.status(404).json({ ok: false, message: 'manga detail or chapters missing' });
+      return sendError(res, 404, 'manga detail or chapters missing');
     }
 
     const chapterIndex = detail.chapters.findIndex(ch => ch.chapterId === chapterId);
-    if (chapterIndex === -1) {
-      return res.status(404).json({ ok: false, message: 'chapter not found' });
-    }
+    if (chapterIndex === -1) return sendError(res, 404, 'chapter not found');
 
     const chapter = detail.chapters[chapterIndex];
 
     if (chapterNumberInput !== null) {
       if (!Number.isFinite(chapterNumberInput)) {
-        return res.status(400).json({ ok: false, message: 'chapterNumber must be a valid number' });
+        return sendError(res, 400, 'chapterNumber must be a valid number');
       }
 
       const conflict = detail.chapters.find(
         ch => ch.chapterId !== chapterId && Number(ch.chapterNumber) === chapterNumberInput
       );
-      if (conflict) {
-        return res.status(409).json({ ok: false, message: 'chapterNumber already exists for this manga' });
-      }
+      if (conflict) return sendError(res, 409, 'chapterNumber already exists for this manga');
 
       chapter.chapterNumber = chapterNumberInput;
     }
@@ -744,9 +772,7 @@ app.put('/api/chapter/:chapterId', async (req, res) => {
     }
 
     if (pages !== null) {
-      if (!pages.length) {
-        return res.status(400).json({ ok: false, message: 'pages array must not be empty' });
-      }
+      if (!pages.length) return sendError(res, 400, 'pages array must not be empty');
       chapter.pages = pages;
       chapter.pageCount = pages.length;
     }
@@ -773,16 +799,12 @@ app.put('/api/chapter/:chapterId', async (req, res) => {
       },
     });
   } catch (err) {
-    console.error('PUT /api/chapter/:chapterId error:', err);
-    res.status(500).json({
-      ok: false,
-      message: 'failed to update chapter',
-      error: err.message,
-    });
+    console.error('PUT /chapter/:chapterId error:', err);
+    sendError(res, 500, 'failed to update chapter', { error: err.message });
   }
 });
 
-app.delete('/api/chapter/:chapterId', async (req, res) => {
+api.delete('/chapter/:chapterId', async (req, res) => {
   try {
     const chapterId = req.params.chapterId;
     const mangaId = sanitizeText(req.query.mangaId);
@@ -792,9 +814,8 @@ app.delete('/api/chapter/:chapterId', async (req, res) => {
 
     if (mangaId) {
       const found = await findMangaById(mangaId);
-      if (!found || !found.detail) {
-        return res.status(404).json({ ok: false, message: 'manga not found' });
-      }
+      if (!found || !found.detail) return sendError(res, 404, 'manga not found');
+
       detail = found.detail;
       detail.chapters = Array.isArray(detail.chapters) ? detail.chapters : [];
       chapterIndex = detail.chapters.findIndex(ch => ch.chapterId === chapterId);
@@ -812,7 +833,7 @@ app.delete('/api/chapter/:chapterId', async (req, res) => {
     }
 
     if (!detail || chapterIndex === -1) {
-      return res.status(404).json({ ok: false, message: 'chapter not found' });
+      return sendError(res, 404, 'chapter not found');
     }
 
     const chapter = detail.chapters[chapterIndex];
@@ -840,16 +861,12 @@ app.delete('/api/chapter/:chapterId', async (req, res) => {
       },
     });
   } catch (err) {
-    console.error('DELETE /api/chapter/:chapterId error:', err);
-    res.status(500).json({
-      ok: false,
-      message: 'failed to delete chapter',
-      error: err.message,
-    });
+    console.error('DELETE /chapter/:chapterId error:', err);
+    sendError(res, 500, 'failed to delete chapter', { error: err.message });
   }
 });
 
-app.get('/api/chapter/:chapterId', async (req, res) => {
+api.get('/chapter/:chapterId', async (req, res) => {
   try {
     for (const manga of mangaListCache) {
       const detail = await ensureDetailLoaded(manga.slug);
@@ -866,16 +883,15 @@ app.get('/api/chapter/:chapterId', async (req, res) => {
       }
     }
 
-    res.status(404).json({ ok: false, message: 'chapter not found' });
+    sendError(res, 404, 'chapter not found');
   } catch (err) {
-    console.error('GET /api/chapter/:chapterId error:', err);
-    res.status(500).json({
-      ok: false,
-      message: 'failed to load chapter',
-      error: err.message,
-    });
+    console.error('GET /chapter/:chapterId error:', err);
+    sendError(res, 500, 'failed to load chapter', { error: err.message });
   }
 });
+
+app.use('/api', api);
+app.use('/api/admin', api);
 
 app.get('/', (_req, res) => {
   res.send('<h1>MangaServer is running</h1><p>Try <a href="/api/health">/api/health</a></p>');
